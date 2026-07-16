@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CashPrinter — Automated Trading Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===================== TOP BAR ===================== -->
+<header class="topbar">
+  <div class="brand" onclick="location.hash='#dashboard'">
+    <div class="brand-mark">CP</div>
+    <div class="brand-text">CashPrinter <span class="brand-sub">terminal</span></div>
+  </div>
+
+  <nav class="mainnav" id="mainnav">
+    <a href="#dashboard"   data-route="dashboard">Dashboard</a>
+    <a href="#charts"      data-route="charts">Charts</a>
+    <a href="#analysis"    data-route="analysis">Analysis</a>
+    <a href="#bulk"        data-route="bulk">Bulk Trader</a>
+    <a href="#bots"        data-route="bots">Trading Bots</a>
+    <a href="#reports"     data-route="reports">Reports</a>
+    <a href="#risk"        data-route="risk">Risk Calc</a>
+    <a href="#settings"    data-route="settings">Settings</a>
+  </nav>
+
+  <div class="topbar-right">
+    <div class="conn" id="connBadge"><span class="dot"></span><span id="connText">offline</span></div>
+    <select id="acctSwitch" class="acct-switch" hidden title="Switch account"></select>
+    <div class="balance" id="balanceBox" title="Account balance">
+      <span id="balAmount">—</span> <span id="balCurrency"></span>
+      <span class="acct-tag" id="acctTag"></span>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="loginBtn">Log in</button>
+  </div>
+</header>
+
+<!-- ===================== RUNNER STRIP (visible when a bot is armed) ===================== -->
+<div class="runner-strip" id="runnerStrip" hidden>
+  <div class="runner-left">
+    <span class="runner-name" id="runnerName">—</span>
+    <span class="runner-status" id="runnerStatus">idle</span>
+  </div>
+  <div class="runner-stats">
+    <span>Runs <b id="rsRuns">0</b></span>
+    <span>Won <b class="pos" id="rsWon">0</b></span>
+    <span>Lost <b class="neg" id="rsLost">0</b></span>
+    <span>Stake <b id="rsStake">—</b></span>
+    <span>P/L <b id="rsPL">0.00</b></span>
+  </div>
+  <div class="runner-actions">
+    <button class="btn btn-run btn-sm" id="runnerToggle">Run</button>
+  </div>
+</div>
+
+<!-- ===================== MAIN ===================== -->
+<main id="view" class="view"></main>
+
+<!-- ===================== JOURNAL DRAWER ===================== -->
+<aside class="journal" id="journal">
+  <div class="journal-head" id="journalHead">
+    <span>Journal</span>
+    <span class="journal-toggle" id="journalToggle">▾</span>
+  </div>
+  <div class="journal-body" id="journalBody"></div>
+</aside>
+
+<!-- ===================== TOASTS ===================== -->
+<div class="toasts" id="toasts"></div>
+
+<!-- ===================== LOGIN MODAL ===================== -->
+<div class="modal-backdrop" id="loginModal" hidden>
+  <div class="modal">
+    <h3>Log in to CashPrinter</h3>
+    <p class="muted">CashPrinter talks directly to the Deriv API from your browser. Your credentials are stored only on this device.</p>
+
+    <button class="btn btn-primary" id="oauthBtn" style="width:100%; padding:13px; font-size:14px;">
+      Log in with your Deriv account
+    </button>
+    <p class="hint" style="margin-top:8px;">You'll be taken to Deriv's secure login page, then returned here with all your accounts (demo and real).</p>
+
+    <details style="margin-top:16px;">
+      <summary class="hint" style="cursor:pointer; color:var(--ink-dim);">Advanced: connect with an API token instead</summary>
+      <label class="field" style="margin-top:12px;">
+        <span>API token</span>
+        <input type="password" id="tokenInput" placeholder="Paste your Deriv API token" autocomplete="off">
+      </label>
+      <p class="hint">Create one at <b>app.deriv.com → Settings → API token</b> with the <b>Read</b>, <b>Trade</b> and <b>Trading information</b> scopes.</p>
+      <button class="btn btn-ghost btn-sm" id="loginConfirm" style="margin-top:6px;">Connect with token</button>
+    </details>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="loginCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="risk-tag" title="Trading derived indices involves significant risk. Synthetic indices are random-walk instruments; no strategy guarantees profit. Trade only with money you can afford to lose.">Risk disclaimer</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
