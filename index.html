@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CashPrinter — Automated Trading Terminal</title>
+<base href="/cjftrades/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -31,7 +32,6 @@
 
   <div class="topbar-right">
     <div class="conn" id="connBadge"><span class="dot"></span><span id="connText">offline</span></div>
-    <select id="acctSwitch" class="acct-switch" hidden title="Switch account"></select>
     <div class="balance" id="balanceBox" title="Account balance">
       <span id="balAmount">—</span> <span id="balCurrency"></span>
       <span class="acct-tag" id="acctTag"></span>
@@ -76,26 +76,16 @@
 <!-- ===================== LOGIN MODAL ===================== -->
 <div class="modal-backdrop" id="loginModal" hidden>
   <div class="modal">
-    <h3>Log in to CashPrinter</h3>
-    <p class="muted">CashPrinter talks directly to the Deriv API from your browser. Your credentials are stored only on this device.</p>
-
-    <button class="btn btn-primary" id="oauthBtn" style="width:100%; padding:13px; font-size:14px;">
-      Log in with your Deriv account
-    </button>
-    <p class="hint" style="margin-top:8px;">You'll be taken to Deriv's secure login page, then returned here with all your accounts (demo and real).</p>
-
-    <details style="margin-top:16px;">
-      <summary class="hint" style="cursor:pointer; color:var(--ink-dim);">Advanced: connect with an API token instead</summary>
-      <label class="field" style="margin-top:12px;">
-        <span>API token</span>
-        <input type="password" id="tokenInput" placeholder="Paste your Deriv API token" autocomplete="off">
-      </label>
-      <p class="hint">Create one at <b>app.deriv.com → Settings → API token</b> with the <b>Read</b>, <b>Trade</b> and <b>Trading information</b> scopes.</p>
-      <button class="btn btn-ghost btn-sm" id="loginConfirm" style="margin-top:6px;">Connect with token</button>
-    </details>
-
+    <h3>Connect to CashPrinter</h3>
+    <p class="muted">Log in with your Deriv API token. Your token is stored only on this device.</p>
+    <label class="field">
+      <span>API Token</span>
+      <input type="password" id="tokenInput" placeholder="Paste your Deriv API token" autocomplete="off">
+    </label>
+    <p class="hint">Get your token: <b>app.deriv.com → Settings → API token</b> · Scopes: <b>Read</b>, <b>Trade</b>, <b>Trading information</b> · Start with your <b>demo</b> account token.</p>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="loginCancel">Cancel</button>
+      <button class="btn btn-primary" id="loginConfirm">Connect</button>
     </div>
   </div>
 </div>
