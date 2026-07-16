@@ -4,7 +4,7 @@
 import { api } from './api.js';
 import { runner, BUILTIN_BOTS } from './engine.js';
 import { DigitStats } from './digits.js';
-import { MARKETS, marketLabel, STORE, DEFAULT_APP_ID } from './config.js';
+import { MARKETS, marketLabel, STORE, DEFAULT_APP_ID, OAUTH_URL } from './config.js';
 
 const $  = (s, el=document) => el.querySelector(s);
 const $$ = (s, el=document) => [...el.querySelectorAll(s)];
@@ -85,6 +85,54 @@ $('#loginBtn').addEventListener('click', () => {
   }
 });
 $('#loginCancel').addEventListener('click', () => $('#loginModal').hidden = true);
+
+/* ---- OAuth: redirect to Deriv's login page ---- */
+$('#oauthBtn').addEventListener('click', () => {
+  location.href = OAUTH_URL(api.appId);
+});
+
+/* ---- OAuth: parse redirect callback (?acct1=..&token1=..&cur1=..&acct2=..) ---- */
+function consumeOAuthCallback() {
+  const q = new URLSearchParams(location.search);
+  if (!q.get('token1')) return null;
+  const accounts = [];
+  for (let i = 1; q.get(`token${i}`); i++) {
+    accounts.push({
+      loginid:  q.get(`acct${i}`),
+      token:    q.get(`token${i}`),
+      currency: q.get(`cur${i}`) || '',
+    });
+  }
+  history.replaceState(null, '', location.pathname + location.hash);
+  return accounts;
+}
+
+/* ---- account switcher ---- */
+function renderAcctSwitch() {
+  const sel = $('#acctSwitch');
+  const accts = api.accounts;
+  if (accts.length < 2) { sel.hidden = true; return; }
+  sel.hidden = false;
+  sel.innerHTML = accts.map(a => {
+    const isDemo = /^VRT/i.test(a.loginid);
+    return `<option value="${a.loginid}" ${api.account?.loginid === a.loginid ? 'selected' : ''}>
+      ${a.loginid} ${a.currency ? '· ' + a.currency : ''}${isDemo ? ' (demo)' : ''}</option>`;
+  }).join('');
+}
+
+$('#acctSwitch').addEventListener('change', async (e) => {
+  if (runner.state === 'running') {
+    toast('Stop the running bot before switching accounts.', 'warn');
+    renderAcctSwitch();
+    return;
+  }
+  try {
+    await api.switchAccount(e.target.value);
+    toast(`Switched to ${api.account.loginid}`, 'win');
+    route();
+  } catch (err) { toast('Switch failed: ' + err.message, 'loss'); }
+});
+
 $('#loginConfirm').addEventListener('click', async () => {
   const token = $('#tokenInput').value.trim();
   if (!token) return;
@@ -780,9 +828,20 @@ window.addEventListener('hashchange', route);
 /* ============================================================
    BOOT
 ============================================================ */
+const oauthAccounts = consumeOAuthCallback();
+if (oauthAccounts) {
+  api.accounts = oauthAccounts;
+  const preferred = oauthAccounts.find(a => /^VRT/i.test(a.loginid)) || oauthAccounts[0];
+  localStorage.setItem(STORE.token, preferred.token);
+  jlog(`OAuth login: ${oauthAccounts.length} account(s) received — starting on ${preferred.loginid}`, 'info');
+}
+
 api.connect();
 api.on('status', s => {
-  if (s === 'authorized' && (location.hash || '#dashboard') === '#dashboard') route();
+  if (s === 'authorized') {
+    renderAcctSwitch();
+    if ((location.hash || '#dashboard') === '#dashboard') route();
+  }
 });
 jlog('CashPrinter terminal booted. Connecting to Deriv…', 'info');
 route();
